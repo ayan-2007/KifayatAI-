@@ -105,7 +105,7 @@ function buildResult(
     ? computeAverageWebPrice(webPrices)
     : estimatedPrice
       ? Math.round(estimatedPrice)
-      : Math.round(askingPrice * 0.85);
+      : 0;
 
   const kifayatScore = computeKifayatScore(askingPrice, averageWebPrice);
   const verdict = computeVerdict(kifayatScore);

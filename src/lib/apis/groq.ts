@@ -98,27 +98,28 @@ async function tryKey(
   imageBase64: string,
   details?: string
 ): Promise<{ ok: true; data: GroqAnalysis } | { ok: false; quotaExceeded: boolean }> {
-  const prompt = `You are analyzing a product image for the PAKISTANI market. Be extremely precise.
+  const prompt = `You are analyzing a product image for the PAKISTANI market. Do NOT hallucinate — if you are uncertain, say so.
 
 Return ONLY valid JSON with no markdown, no thinking tags, no extra text:
 {
-  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag, Arduino, ESP32, Raspberry Pi, Microcontroller, Sensor Module, Motor Driver, Power Module, Soldering Iron, IC, Transistor, Display Module, Battery Cell)",
-  "brand": "brand name exactly as known in Pakistan or Unknown",
-  "exactModel": "exact model number / variant / color / size if visible, otherwise empty string",
-  "features": ["exact visible feature 1", "exact visible feature 2", "exact visible feature 3", "exact visible feature 4"],
-  "estimatedFairPrice": <numeric estimated fair price in PAKISTANI RUPEES PKR>,
+  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag, Arduino, ESP32, Raspberry Pi, Microcontroller, Sensor Module, Motor Driver, Power Module, Soldering Iron, IC, Transistor, Display Module, Battery Cell) or Product if unknown",
+  "brand": "brand name exactly as known in Pakistan or Unknown if unsure",
+  "exactModel": "exact model number / variant / color / size if visible and CERTAIN, otherwise empty string",
+  "features": ["exact visible feature 1", "exact visible feature 2"] or empty array if uncertain,
+  "estimatedFairPrice": <numeric estimated fair price in PAKISTANI RUPEES PKR> or 0 if unknown,
   "confidence": "high|medium|low",
   "isLuxury": true|false
 }
 
 RULES:
+- If you cannot identify the product, set category "Product", brand "Unknown", exactModel "", features [], estimatedFairPrice 0.
+- NEVER guess a brand unless you are CERTAIN you see a logo or text.
+- NEVER guess an exactModel unless you can read a model number or SKU.
 - estimatedFairPrice MUST be in PKR (Pakistani Rupees). 1 USD ≈ 280 PKR.
-- exactModel is CRITICAL: extract model number, generation, color, size from the image text.
-- Only set brand if you are CERTAIN you see a logo or text.
-- If you see a model number or SKU on the product, include it in exactModel.
 - Consider Pakistani market prices including import duties and local taxes.
 - Features must be visually observable attributes only.
-- Set confidence to "low" if image is blurry, dark, or unclear.
+- Set confidence to "low" if image is blurry, dark, unclear, or you are unsure about any detail.
+- Better to say Unknown than to guess wrong.
 ${details ? `\nUser context: ${details}` : ''}`;
 
   const messages = [
