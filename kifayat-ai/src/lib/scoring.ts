@@ -1,6 +1,4 @@
-import type { ComparisonItem } from '@/types';
-
-function rejectOutliers(prices: number[]): number[] {
+export function rejectOutliers(prices: number[]): number[] {
   if (prices.length <= 2) return prices;
   const sorted = [...prices].sort((a, b) => a - b);
   const q1Idx = Math.floor(sorted.length * 0.25);
@@ -48,20 +46,49 @@ export function computeSavings(askingPrice: number, averageWebPrice: number): {
   return { savingsAmount, savingsPercentage };
 }
 
-export function computeSimilarityScore(
+export function computeProductSimilarity(
   title: string,
   brand: string,
-  category: string
+  exactModel: string,
+  category: string,
+  features: string[]
 ): number {
-  const lower = title.toLowerCase();
-  let matches = 0;
-  if (brand && brand !== 'Unknown' && lower.includes(brand.toLowerCase())) matches += 40;
-  if (category && lower.includes(category.toLowerCase())) matches += 30;
+  const lowerTitle = title.toLowerCase();
+  let score = 0;
+  const reasons: string[] = [];
 
-  const modelWords = title.split(/\s+/).filter(w => w.length > 3);
-  const catWords = category.split(/\s+/).filter(w => w.length > 3);
-  const matchCount = catWords.filter(w => lower.includes(w.toLowerCase())).length;
-  matches += catWords.length > 0 ? (matchCount / catWords.length) * 30 : 0;
+  if (brand && brand !== 'Unknown' && lowerTitle.includes(brand.toLowerCase())) {
+    score += 35;
+    reasons.push('brand');
+  }
 
-  return Math.min(99, Math.max(50, matches));
+  if (exactModel && exactModel.length > 2) {
+    const modelWords = exactModel.toLowerCase().split(/[\s,/-]+/).filter(w => w.length > 1);
+    const matches = modelWords.filter(w => lowerTitle.includes(w));
+    const ratio = modelWords.length > 0 ? matches.length / modelWords.length : 0;
+    score += Math.round(ratio * 35);
+    if (ratio >= 0.8) reasons.push('exactModel');
+    else if (ratio >= 0.5) reasons.push('partialModel');
+  }
+
+  if (category && category !== 'Product') {
+    const catWords = category.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    const catMatches = catWords.filter(w => lowerTitle.includes(w));
+    const catRatio = catWords.length > 0 ? catMatches.length / catWords.length : 0;
+    score += Math.round(catRatio * 20);
+    if (catRatio >= 0.8) reasons.push('category');
+  }
+
+  if (features.length > 0) {
+    const featureMatches = features.filter(f =>
+      f.length > 3 && lowerTitle.includes(f.toLowerCase())
+    );
+    score += Math.round((featureMatches.length / Math.min(features.length, 4)) * 10);
+  }
+
+  return Math.min(100, Math.max(0, score));
+}
+
+export function isSufficientlySimilar(score: number): boolean {
+  return score >= 80;
 }

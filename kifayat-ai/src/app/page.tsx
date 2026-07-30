@@ -21,7 +21,6 @@ export default function Home() {
     <>
       <Header />
       <main className="flex-1 flex flex-col items-center relative">
-        {/* Shader background — only on idle state */}
         {scanState === 'idle' && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 opacity-40">
@@ -49,7 +48,7 @@ export default function Home() {
           <>
             <UploadSection />
             <VerdictDashboard result={currentResult} />
-            <ComparisonGrid comparisons={currentResult.comparisons} currency={currentResult.currency} />
+            <ComparisonGrid comparisons={currentResult.comparisons} />
           </>
         )}
 
@@ -70,8 +69,8 @@ export default function Home() {
 
       <footer className="w-full border-t border-white/5 py-6 mt-auto relative z-10">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-xs text-surface-500 font-heading">Kifayat AI — Smart Visual Shopping &amp; Price Intelligence</p>
-          <p className="text-[10px] text-surface-600 mt-1">کفایت — Never Overpay Again</p>
+          <p className="text-xs text-surface-500 font-heading">Kifayat AI — پاکستان کی سمارٹ پرائس انٹیلیجنس</p>
+          <p className="text-[10px] text-surface-600 mt-1">کفایت — پھر کبھی زیادہ نہ دیں</p>
         </div>
       </footer>
 

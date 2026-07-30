@@ -1,79 +1,108 @@
-import type { ScanResult, CurrencyCode, ComparisonItem, DataSource } from '@/types';
-import { getCurrencySymbol, convertPrice } from './currency';
-import { computeKifayatScore, computeVerdict, computeSavings, computeSimilarityScore } from './scoring';
+import type { ScanResult, ComparisonItem } from '@/types';
+import { computeKifayatScore, computeVerdict, computeSavings, computeProductSimilarity } from './scoring';
 
 const MOCK_PRODUCT_IMAGES = [
-  'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400&q=80',
+  'https://images.unsplash.com/photo-1576995853123-5a05d93c0?w=400&q=80',
   'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=80',
   'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80',
   'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
-  'https://images.unsplash.com/photo-1608238628129-62f3f5f27e01?w=400&q=80',
   'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80',
-  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&q=80',
-  'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80',
+  'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400&q=80',
+  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80',
+  'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&q=80',
 ];
 
-const MERCHANTS = ['Amazon', 'eBay', 'ASOS', 'Poshmark', 'Zalando', 'Myntra', 'Daraz', 'Noon'];
-const CATEGORIES = ["Men's Denim Jacket", "Women's Blazer", 'Casual Sneakers', 'Leather Handbag', "Cotton T-Shirt", 'Wool Sweater', 'Smartwatch', 'Sunglasses'];
-const BRANDS = ["Levi's", 'Zara', 'Nike', 'Michael Kors', 'H&M', 'Uniqlo', 'Apple', 'Ray-Ban'];
+const CATEGORIES = [
+  'Mobile Phone', 'Kurti', 'Sneakers', 'Perfume',
+  'Wrist Watch', 'Leather Bag', 'LED TV', 'Cricket Bat'
+];
+
+const BRANDS: Record<string, string[]> = {
+  'Mobile Phone': ['Samsung', 'Xiaomi', 'Infinix', 'Tecno', 'Oppo', 'Vivo', 'Realme', 'iPhone'],
+  'Kurti': ['Sana Safinaz', 'Maria B', 'Nishat Linen', 'Limelight', 'Gul Ahmed', 'Alkaram', 'Bonanza'],
+  'Sneakers': ['Servis', 'Borjan', 'Metro', 'Stylo', 'Lancer', 'Adidas', 'Nike'],
+  'Perfume': ['J.', 'Scents', 'Bonanza', 'Sapphire', 'Lataffa', 'Armaf'],
+  'Wrist Watch': ['Casio', 'Seiko', 'Fossil', 'Rado', 'Citizen', 'Tissot'],
+  'Leather Bag': ['Sapphire', 'Jafferjees', 'Daachi', 'Insight', 'Bonanza'],
+  'LED TV': ['Samsung', 'Sony', 'TCL', 'Changhong', 'Dawlance', 'Haier'],
+  'Cricket Bat': ['CA', 'SS', 'Kookaburra', 'Gray-Nicolls', 'BDM'],
+};
+
 const FEATURES_LIST: Record<string, string[]> = {
-  "Men's Denim Jacket": ['Oversized Fit', 'Distressed Vintage Finish', 'Classic Blue Wash', 'Button Closure', 'Chest Pockets'],
-  "Women's Blazer": ['Tailored Fit', 'Notch Lapel', 'Double-Breasted', 'Pockets', 'Stretch Fabric'],
-  'Casual Sneakers': ['Low-Top Design', 'Breathable Mesh', 'Rubber Sole', 'Padded Collar', 'Lace-Up Closure'],
-  'Leather Handbag': ['Genuine Leather', 'Gold Hardware', 'Top Zip Closure', 'Adjustable Strap', 'Interior Pockets'],
-  "Cotton T-Shirt": ['Crew Neck', '100% Organic Cotton', 'Relaxed Fit', 'Short Sleeve', 'Ribbed Collar'],
-  'Wool Sweater': ['Knit Pattern', 'Turtleneck', 'Ribbed Cuffs', 'Merino Wool', 'Relaxed Fit'],
-  'Smartwatch': ['AMOLED Display', 'Heart Rate Monitor', 'GPS Tracking', 'Water Resistant', '7-Day Battery'],
-  'Sunglasses': ['Polarized Lenses', 'Gold Frame', 'UV400 Protection', 'Cat-Eye Shape', 'Spring Hinges'],
+  'Mobile Phone': ['Dual SIM', '5G Support', 'AMOLED Display', '5000mAh Battery', '108MP Camera', 'Fast Charging'],
+  'Kurti': ['Cotton Fabric', 'Embroidered', 'Straight Cut', '3-Piece', 'Unstitched'],
+  'Sneakers': ['Mesh Upper', 'Non-Slip Sole', 'Padded Collar', 'Lightweight', 'Lace-Up'],
+  'Perfume': ['Eau de Parfum', 'Long Lasting', 'Woody Scent', '100ml', 'Gift Pack'],
+  'Wrist Watch': ['Stainless Steel', 'Water Resistant', 'Quartz Movement', 'Leather Strap', 'Analog Display'],
+  'Leather Bag': ['Genuine Leather', 'Gold Hardware', 'Multiple Compartments', 'Adjustable Strap'],
+  'LED TV': ['4K UHD', 'Smart TV', 'HDR10+', 'Dolby Audio', '3 HDMI Ports'],
+  'Cricket Bat': ['Grade 1 Willow', 'Kashmir Willow', 'Full Size', 'Toe Guard', 'Semi-Oval Handle'],
 };
 
-const BASE_PRICES_USD: Record<string, number> = {
-  'Smartwatch': 250, 'Leather Handbag': 200, 'Sunglasses': 150,
-  'Casual Sneakers': 120, "Women's Blazer": 90, "Men's Denim Jacket": 80,
-  'Wool Sweater': 70, "Cotton T-Shirt": 30,
+const MERCHANTS: Record<string, string[]> = {
+  'Mobile Phone': ['Daraz', 'PriceOye', 'Shophive', 'Mega', 'Telemart'],
+  'Kurti': ['Daraz', 'Sapphire', 'Gul Ahmed', 'Limelight', 'Bonanza'],
+  'Sneakers': ['Daraz', 'Servis', 'Borjan', 'Metro', 'Stylo'],
+  'Perfume': ['Daraz', 'Scents', 'PriceOye', 'iShopping'],
+  'Wrist Watch': ['Daraz', 'PriceOye', 'Shophive', 'Mega'],
+  'Leather Bag': ['Daraz', 'Sapphire', 'Jafferjees', 'Daachi'],
+  'LED TV': ['Daraz', 'HomeShopping', 'Mega', 'PriceOye'],
+  'Cricket Bat': ['Daraz', 'PriceOye', 'Shophive'],
 };
 
-const US_DOLLAR_REF: Record<CurrencyCode, number> = {
-  USD: 1, PKR: 280, INR: 83, EUR: 0.92, GBP: 0.79, AED: 3.67,
+const BASE_PRICES_PKR: Record<string, number> = {
+  'Mobile Phone': 35000, 'Kurti': 3000, 'Sneakers': 5000, 'Perfume': 3500,
+  'Wrist Watch': 12000, 'Leather Bag': 8000, 'LED TV': 75000, 'Cricket Bat': 5000,
+};
+
+const MERCHANT_DOMAINS: Record<string, string> = {
+  'Daraz': 'daraz.pk', 'PriceOye': 'priceoye.pk', 'Shophive': 'shophive.pk',
+  'Mega': 'mega.pk', 'Telemart': 'telemart.pk', 'Sapphire': 'sapphireonline.pk',
+  'Gul Ahmed': 'gulahmedshop.com', 'Limelight': 'limelight.pk', 'Bonanza': 'bonanzagt.com',
+  'Servis': 'servis.com.pk', 'Borjan': 'borjan.pk', 'Metro': 'metroshoes.com.pk',
+  'Stylo': 'stylo.pk', 'Scents': 'scents.com.pk', 'iShopping': 'ishop.pk',
+  'Jafferjees': 'jafferjees.com', 'Daachi': 'daachi.com.pk', 'HomeShopping': 'homeshopping.pk',
 };
 
 export async function generateMockResult(
   imageData: string,
   askingPrice: number,
-  currency: CurrencyCode,
   details?: string
 ): Promise<ScanResult> {
   const seed = Math.random();
   const categoryIndex = Math.floor(seed * CATEGORIES.length);
   const category = CATEGORIES[categoryIndex];
-  const brand = BRANDS[categoryIndex];
-  const features = FEATURES_LIST[category] || FEATURES_LIST[CATEGORIES[0]];
+  const brandPool = BRANDS[category] || ['Unknown'];
+  const brand = brandPool[Math.floor(Math.random() * brandPool.length)];
+  const features = FEATURES_LIST[category] || ['Detected item'];
 
-  const baseUsd = BASE_PRICES_USD[category] || 50;
-  const usdRate = US_DOLLAR_REF[currency] || 1;
-  const baseInCurrency = Math.round(baseUsd * usdRate);
-  const variance = Math.round((Math.random() - 0.5) * baseInCurrency * 0.3);
-  const averageWebPrice = Math.max(1, baseInCurrency + variance);
+  const basePrice = BASE_PRICES_PKR[category] || 2000;
+  const variance = Math.round((Math.random() - 0.5) * basePrice * 0.4);
+  const averageWebPrice = Math.max(1, basePrice + variance);
 
   const kifayatScore = computeKifayatScore(askingPrice, averageWebPrice);
   const verdict = computeVerdict(kifayatScore);
   const { savingsAmount, savingsPercentage } = computeSavings(askingPrice, averageWebPrice);
 
-  const comparisons: ComparisonItem[] = Array.from({ length: 6 }, (_, i) => {
+  const categoryMerchants = MERCHANTS[category] || ['Daraz'];
+  const comparisons: ComparisonItem[] = Array.from({ length: 5 }, (_, i) => {
     const priceOffset = Math.round((Math.random() - 0.3) * averageWebPrice * 0.2);
     const compPrice = Math.max(1, averageWebPrice + priceOffset);
+    const merchant = categoryMerchants[i % categoryMerchants.length];
     const compTitle = `${brand} ${category}`;
+
     return {
       id: `comp-${i}`,
       title: compTitle,
-      merchant: MERCHANTS[(categoryIndex + i) % MERCHANTS.length],
+      merchant,
+      merchantDomain: MERCHANT_DOMAINS[merchant] || `${merchant.toLowerCase().replace(/\s+/g, '')}.pk`,
       price: compPrice,
-      currency,
       imageUrl: MOCK_PRODUCT_IMAGES[(categoryIndex + i) % MOCK_PRODUCT_IMAGES.length],
       productUrl: '#',
-      similarityScore: computeSimilarityScore(compTitle, brand, category),
+      similarityScore: computeProductSimilarity(compTitle, brand, '', category, features),
       isLowerPrice: compPrice < askingPrice,
-      dataSource: 'estimated' as DataSource,
+      dataSource: 'estimated',
+      supportsCOD: true,
     };
   });
 
@@ -82,10 +111,10 @@ export async function generateMockResult(
     timestamp: Date.now(),
     imageData,
     askingPrice,
-    currency,
     kifayatScore,
     category,
     brand,
+    exactModel: '',
     features,
     averageWebPrice,
     savingsAmount,
@@ -95,6 +124,7 @@ export async function generateMockResult(
     details,
     confidence: 'low',
     dataSource: 'estimated',
-    webPriceCount: 6,
+    webPriceCount: 5,
+    groqRawAnalysis: '',
   };
 }

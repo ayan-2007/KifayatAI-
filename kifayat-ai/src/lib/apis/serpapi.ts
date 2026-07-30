@@ -1,15 +1,16 @@
-import type { CurrencyCode } from '@/types';
-import { COUNTRY_MAP, parsePriceRaw } from '@/lib/currency';
+import { identifyMerchant, type PakistaniMerchant } from '@/lib/merchants';
+import { parsePriceRaw } from '@/lib/currency';
 
 const SERPAPI_KEY = () => process.env.SERPAPI_API_KEY;
 
 export interface SerpapiPriceMatch {
   title: string;
   merchant: string;
+  merchantDomain: string;
   price: number;
-  priceRaw: string;
   imageUrl: string;
   productUrl: string;
+  supportsCOD: boolean;
 }
 
 interface SerpapiResult {
@@ -25,73 +26,111 @@ interface SerpapiResult {
   }[];
 }
 
-const LANGUAGE_MAP: Record<CurrencyCode, string> = {
-  USD: 'en',
-  PKR: 'ur',
-  INR: 'hi',
-  EUR: 'de',
-  GBP: 'en',
-  AED: 'ar',
-};
+interface LensResult {
+  search_metadata?: { status?: string };
+  visual_matches?: {
+    title: string;
+    source: string;
+    price: string;
+    thumbnail: string;
+    link: string;
+  }[];
+  shopping_results?: {
+    title: string;
+    source: string;
+    price: string;
+    thumbnail: string;
+    link: string;
+  }[];
+}
 
-export async function searchWithTalashkaar(
-  query: string,
-  currency: CurrencyCode
+function extractBase64(dataUri: string): string | null {
+  const match = dataUri.match(/^data:image\/(png|jpeg|jpg|gif|webp);base64,(.+)$/);
+  return match ? match[2] : null;
+}
+
+export async function searchGoogleLensPakistan(
+  imageDataUri: string,
+  query: string
 ): Promise<{ success: boolean; results?: SerpapiPriceMatch[] }> {
   const key = SERPAPI_KEY();
   if (!key) return { success: false };
 
-  const gl = COUNTRY_MAP[currency];
-  const hl = LANGUAGE_MAP[currency];
+  const base64 = extractBase64(imageDataUri);
+  if (!base64) return { success: false };
 
   try {
     const params = new URLSearchParams({
-      engine: 'google_shopping',
-      q: query,
+      engine: 'google_lens',
       api_key: key,
-      num: '8',
-      gl,
-      hl,
+      image_base64: base64.slice(0, 50000),
+      hl: 'en',
+      country: 'pk',
     });
 
     const res = await fetch(`https://serpapi.com/search?${params}`, {
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(15000),
     });
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      console.warn(`[Talashkaar] HTTP ${res.status}: ${errText}`);
-      return { success: false };
+    if (!res.ok) return { success: false };
+
+    const data: LensResult = await res.json();
+    if (data.search_metadata?.status === 'error') return { success: false };
+
+    const allItems = [
+      ...(data.visual_matches || []),
+      ...(data.shopping_results || []),
+    ];
+
+    if (!allItems.length) return { success: false };
+
+    const deduped = new Map<string, SerpapiPriceMatch>();
+    for (const item of allItems) {
+      const link = item.link || '';
+      if (deduped.has(link)) continue;
+
+      const merchantInfo = identifyMerchantFromLink(link, item.source);
+      if (!merchantInfo) continue;
+
+      deduped.set(link, {
+        title: item.title || '',
+        merchant: merchantInfo.name,
+        merchantDomain: merchantInfo.domains[0] || '',
+        price: parsePriceRaw(item.price || '0'),
+        imageUrl: item.thumbnail || '',
+        productUrl: link,
+        supportsCOD: merchantInfo.cod,
+      });
     }
 
-    const data: SerpapiResult = await res.json();
+    const results = Array.from(deduped.values()).slice(0, 8);
 
-    if (data.search_metadata?.status === 'error') {
-      console.warn('[Talashkaar] API returned error status');
-      return { success: false };
+    if (results.length === 0) {
+      return fallbackShoppingSearch(query);
     }
-
-    if (!data.shopping_results?.length) {
-      return { success: false };
-    }
-
-    const results: SerpapiPriceMatch[] = data.shopping_results.map((item) => ({
-      title: item.title,
-      merchant: item.source,
-      price: parsePriceRaw(item.price),
-      priceRaw: item.price,
-      imageUrl: item.thumbnail,
-      productUrl: item.link,
-    }));
 
     return { success: true, results };
   } catch (err) {
-    console.warn('[Talashkaar] Error:', err instanceof Error ? err.message : err);
-    return { success: false };
+    console.warn('[Talashkaar] Lens error:', err instanceof Error ? err.message : err);
+    return fallbackShoppingSearch(query);
   }
 }
 
-export async function searchWithTalashkaarFallback(
+function identifyMerchantFromLink(link: string, source: string): PakistaniMerchant | null {
+  let domain = '';
+  try {
+    domain = new URL(link).hostname.replace('www.', '');
+  } catch {
+    return identifyMerchant(source);
+  }
+
+  const byDomain = identifyMerchant(domain);
+  if (byDomain) return byDomain;
+
+  return identifyMerchant(source);
+}
+
+async function fallbackShoppingSearch(
   query: string
 ): Promise<{ success: boolean; results?: SerpapiPriceMatch[] }> {
   const key = SERPAPI_KEY();
@@ -100,11 +139,12 @@ export async function searchWithTalashkaarFallback(
   try {
     const params = new URLSearchParams({
       engine: 'google_shopping',
-      q: query,
+      q: `${query} Pakistan`,
       api_key: key,
       num: '8',
-      gl: 'us',
+      gl: 'pk',
       hl: 'en',
+      google_domain: 'google.com.pk',
     });
 
     const res = await fetch(`https://serpapi.com/search?${params}`, {
@@ -116,17 +156,34 @@ export async function searchWithTalashkaarFallback(
     const data: SerpapiResult = await res.json();
     if (!data.shopping_results?.length) return { success: false };
 
-    const results: SerpapiPriceMatch[] = data.shopping_results.map((item) => ({
-      title: item.title,
-      merchant: item.source,
-      price: parsePriceRaw(item.price),
-      priceRaw: item.price,
-      imageUrl: item.thumbnail,
-      productUrl: item.link,
-    }));
+    const results: SerpapiPriceMatch[] = [];
+    for (const item of data.shopping_results) {
+      const merchantInfo = identifyMerchantFromLink(item.link, item.source);
+      results.push({
+        title: item.title,
+        merchant: merchantInfo?.name || item.source,
+        merchantDomain: merchantInfo?.domains[0] || '',
+        price: parsePriceRaw(item.price),
+        imageUrl: item.thumbnail,
+        productUrl: item.link,
+        supportsCOD: merchantInfo?.cod ?? true,
+      });
+    }
 
     return { success: true, results };
-  } catch {
+  } catch (err) {
+    console.warn('[Talashkaar] Fallback error:', err instanceof Error ? err.message : err);
     return { success: false };
   }
+}
+
+export async function searchWithTalashkaar(
+  query: string,
+  imageDataUri?: string
+): Promise<{ success: boolean; results?: SerpapiPriceMatch[] }> {
+  if (imageDataUri) {
+    const lensResult = await searchGoogleLensPakistan(imageDataUri, query);
+    if (lensResult.success) return lensResult;
+  }
+  return fallbackShoppingSearch(query);
 }

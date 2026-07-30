@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import { analyzeProduct } from '@/lib/analyze';
-import type { CurrencyCode } from '@/types';
 
 interface AnalyzeRequest {
   imageData: string;
   askingPrice: number;
-  currency: CurrencyCode;
   details?: string;
 }
 
@@ -23,7 +21,6 @@ export async function POST(request: Request) {
     const result = await analyzeProduct({
       imageData: body.imageData,
       askingPrice: body.askingPrice,
-      currency: body.currency || 'USD',
       details: body.details,
     });
 

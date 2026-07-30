@@ -3,20 +3,17 @@
 
 import { useRef, useState, useCallback, type ChangeEvent, type DragEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Camera, X, ImageUp, Zap, DollarSign } from 'lucide-react';
+import { Upload, Camera, X, ImageUp, Zap } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useStore } from '@/store/useStore';
-import { CURRENCIES } from '@/types';
 
 export default function UploadSection() {
-  const { currency, scanState, setScanState, setCurrentResult, addToHistory } = useStore();
+  const { scanState, setScanState, setCurrentResult, addToHistory } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [askingPrice, setAskingPrice] = useState('');
   const [details, setDetails] = useState('');
   const [isDragging, setIsDragging] = useState(false);
-
-  const currSymbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '$';
 
   const handleImage = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return;
@@ -52,7 +49,7 @@ export default function UploadSection() {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageData: imagePreview, askingPrice: parseFloat(askingPrice), currency, details: details || undefined }),
+        body: JSON.stringify({ imageData: imagePreview, askingPrice: parseFloat(askingPrice), details: details || undefined }),
       });
       if (!res.ok) throw new Error('Scan failed');
       const result = await res.json();
@@ -62,7 +59,7 @@ export default function UploadSection() {
     } catch {
       setScanState('error');
     }
-  }, [imagePreview, askingPrice, currency, details, setScanState, setCurrentResult, addToHistory]);
+  }, [imagePreview, askingPrice, details, setScanState, setCurrentResult, addToHistory]);
 
   return (
     <section className="relative w-full px-4 pt-10 pb-8 md:pt-16 md:pb-10">
@@ -74,14 +71,12 @@ export default function UploadSection() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-heading">
-            Never Overpay{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
-              Again.
-            </span>
+            پھر کبھی زیادہ نہ دیں
           </h1>
           <p className="mt-3 text-sm md:text-base text-surface-400 max-w-md mx-auto">
-            Upload a product photo. AI inspects the price, compares the web, and tells you if it&apos;s a steal or a scam.
+            پروڈکٹ کی تصویر اپ لوڈ کریں۔ AI قیمت چیک کرتی ہے، پاکستانی مارکیٹ سے موازنہ کرتی ہے، اور بتاتی ہے کہ سودا ہے یا دھوکہ۔
           </p>
+          <p className="text-xs text-surface-500 mt-1">Upload a photo. AI checks prices across all Pakistani stores.</p>
         </motion.div>
 
         <motion.div
@@ -117,12 +112,12 @@ export default function UploadSection() {
                   <ImageUp className="size-7" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-surface-300">Drag & drop an image here</p>
-                  <p className="text-xs text-surface-500 mt-1">or tap to browse files</p>
+                  <p className="text-sm font-medium text-surface-300">تصویر یہاں گھسیٹیں اور چھوڑیں</p>
+                  <p className="text-xs text-surface-500 mt-1">یا فائل منتخب کرنے کے لیے ٹیپ کریں</p>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-600/20">
-                    <Upload className="size-4" /> Upload Photo
+                    <Upload className="size-4" /> تصویر اپ لوڈ کریں
                   </button>
                   <button onClick={() => {
                     const input = document.createElement('input');
@@ -130,7 +125,7 @@ export default function UploadSection() {
                     input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) handleImage(file); };
                     input.click();
                   }} className="flex items-center gap-2 h-10 px-5 rounded-xl border border-white/10 text-surface-300 text-sm font-medium hover:bg-white/5 transition-colors">
-                    <Camera className="size-4" /> Take Photo
+                    <Camera className="size-4" /> تصویر لیں
                   </button>
                 </div>
               </motion.div>
@@ -143,16 +138,15 @@ export default function UploadSection() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="mt-6 space-y-4">
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-surface-500">
-              <DollarSign className="size-4" />
-              <span className="text-sm font-medium font-mono">{currSymbol}</span>
+              <span className="text-sm font-bold font-mono text-surface-400">₨</span>
             </div>
-            <input type="number" step="0.01" min="0" placeholder="0.00" value={askingPrice}
+            <input type="number" step="1" min="0" placeholder="قیمت درج کریں" value={askingPrice}
               onChange={(e) => setAskingPrice(e.target.value)}
-              className="w-full h-12 pl-14 pr-4 rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all font-mono" />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-surface-500 font-mono">{currency}</div>
+              className="w-full h-12 pl-10 pr-16 rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all font-mono" />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-surface-500 font-mono">PKR</div>
           </div>
 
-          <input type="text" placeholder="Brand name, store, or tag info (Optional)" value={details}
+          <input type="text" placeholder="برانڈ، ماڈل یا کوئی تفصیل (اختیاری)" value={details}
             onChange={(e) => setDetails(e.target.value)}
             className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all" />
 
@@ -165,7 +159,7 @@ export default function UploadSection() {
             )}>
             <span className="relative z-10 flex items-center justify-center gap-2">
               <Zap className="size-4" />
-              Run Kifayat Scan
+              Kifayat Scan چلائیں
             </span>
           </button>
         </motion.div>

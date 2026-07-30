@@ -2,26 +2,26 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { motion } from 'framer-motion';
-import { ExternalLink, ShieldCheck } from 'lucide-react';
+import { ExternalLink, ShieldCheck, Banknote, Truck } from 'lucide-react';
 import { cn } from '@/lib/cn';
-import { CURRENCIES, type ComparisonItem } from '@/types';
+import { formatPKR } from '@/lib/currency';
+import { type ComparisonItem } from '@/types';
 
-interface Props { comparisons: ComparisonItem[]; currency: string; }
+interface Props { comparisons: ComparisonItem[]; }
 
-export default function ComparisonGrid({ comparisons, currency }: Props) {
-  const sym = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '$';
+export default function ComparisonGrid({ comparisons }: Props) {
   const sorted = [...comparisons].sort((a, b) => a.price - b.price);
 
   return (
     <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="w-full px-4 pb-8">
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-widest">Web Price Comparison</h3>
-          <span className="text-xs text-surface-500">{comparisons.length} matches found</span>
+          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-widest">پاکستانی اسٹورز سے قیمتیں</h3>
+          <span className="text-xs text-surface-500">{comparisons.length} مل گئے</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((item, i) => (
-            <ComparisonCard key={item.id} item={item} sym={sym} index={i} isCheapest={i === 0} />
+            <ComparisonCard key={item.id} item={item} index={i} isCheapest={i === 0} />
           ))}
         </div>
       </div>
@@ -29,7 +29,7 @@ export default function ComparisonGrid({ comparisons, currency }: Props) {
   );
 }
 
-function ComparisonCard({ item, sym, index, isCheapest }: { item: ComparisonItem; sym: string; index: number; isCheapest: boolean }) {
+function ComparisonCard({ item, index, isCheapest }: { item: ComparisonItem; index: number; isCheapest: boolean }) {
   return (
     <motion.a href={item.productUrl} target="_blank" rel="noopener noreferrer"
       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 * index }}
@@ -49,19 +49,25 @@ function ComparisonCard({ item, sym, index, isCheapest }: { item: ComparisonItem
           </div>
           {isCheapest && (
             <span className="shrink-0 flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="size-3" /> Best
+              <ShieldCheck className="size-3" /> بہترین
             </span>
           )}
         </div>
         <div className="flex items-center justify-between">
           <span className={cn('text-sm font-bold font-mono', item.isLowerPrice ? 'text-emerald-400' : 'text-white')}>
-            {sym}{item.price.toFixed(2)}
+            {formatPKR(item.price)}
           </span>
-          <span className="text-[11px] font-medium text-primary-400">{item.similarityScore}% match</span>
+          <span className={cn('text-[11px] font-medium',
+            item.similarityScore >= 80 ? 'text-emerald-400' : item.similarityScore >= 60 ? 'text-amber-400' : 'text-surface-500'
+          )}>{item.similarityScore}% ملتا</span>
         </div>
-        <div className="flex items-center justify-between pt-1 border-t border-white/5">
-          <span className="text-[11px] text-surface-500 flex items-center gap-1"><ExternalLink className="size-3" /> View Deal</span>
-          <span className="text-[11px] text-surface-500">↗</span>
+        <div className="flex items-center gap-2 pt-1 border-t border-white/5">
+          <span className="text-[11px] text-surface-500 flex items-center gap-1"><ExternalLink className="size-3" /> دیکھیں</span>
+          {item.supportsCOD && (
+            <span className="text-[11px] text-surface-500 flex items-center gap-1 ml-auto">
+              <Truck className="size-3" /> COD
+            </span>
+          )}
         </div>
       </div>
     </motion.a>

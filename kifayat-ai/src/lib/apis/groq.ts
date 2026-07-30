@@ -8,10 +8,12 @@ export interface GroqAnalysis {
   success: boolean;
   category?: string;
   brand?: string;
+  exactModel?: string;
   features?: string[];
   estimatedPrice?: number;
   modelConfidence?: 'high' | 'medium' | 'low';
   isLuxury?: boolean;
+  rawAnalysis?: string;
 }
 
 function loadKeys(): string[] {
@@ -96,26 +98,33 @@ async function tryKey(
   imageBase64: string,
   details?: string
 ): Promise<{ ok: true; data: GroqAnalysis } | { ok: false; quotaExceeded: boolean }> {
-  const prompt = `Analyze this product image. Return ONLY valid JSON with no markdown, no thinking tags, no extra text:
+  const prompt = `You are analyzing a product image for the PAKISTANI market. Be extremely precise.
+
+Return ONLY valid JSON with no markdown, no thinking tags, no extra text:
 {
-  "category": "product category (e.g., Smartwatch, Handbag, Sneakers, Sunglasses, Jacket, Dress, Shirt, Backpack, Headphones)",
-  "brand": "brand name or Unknown",
-  "features": ["feature1", "feature2", "feature3"],
-  "estimatedFairPrice": <numeric estimated fair price in USD>,
+  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag)",
+  "brand": "brand name exactly as known in Pakistan or Unknown",
+  "exactModel": "exact model number / variant / color / size if visible, otherwise empty string",
+  "features": ["exact visible feature 1", "exact visible feature 2", "exact visible feature 3", "exact visible feature 4"],
+  "estimatedFairPrice": <numeric estimated fair price in PAKISTANI RUPEES PKR>,
   "confidence": "high|medium|low",
   "isLuxury": true|false
 }
-Rules:
-- Be precise. Only set brand if you are CERTAIN.
-- estimatedFairPrice must be in USD only.
-- If unsure about price, set confidence to "low".
-- Features should be visual attributes you can actually see.
-${details ? `\nContext: ${details}` : ''}`;
+
+RULES:
+- estimatedFairPrice MUST be in PKR (Pakistani Rupees). 1 USD ≈ 280 PKR.
+- exactModel is CRITICAL: extract model number, generation, color, size from the image text.
+- Only set brand if you are CERTAIN you see a logo or text.
+- If you see a model number or SKU on the product, include it in exactModel.
+- Consider Pakistani market prices including import duties and local taxes.
+- Features must be visually observable attributes only.
+- Set confidence to "low" if image is blurry, dark, or unclear.
+${details ? `\nUser context: ${details}` : ''}`;
 
   const messages = [
     {
       role: 'system',
-      content: 'You are a precise product classifier. Output ONLY a JSON object. No analysis. No thinking. No markdown. If uncertain, set confidence to "low".',
+      content: 'You are a precise Pakistani product classifier. Output ONLY a JSON object. No analysis. No thinking. No markdown. Extract exact model numbers when visible.',
     },
     {
       role: 'user',
@@ -135,8 +144,9 @@ ${details ? `\nContext: ${details}` : ''}`;
     return { ok: false, quotaExceeded: isQuota };
   }
 
-  console.log('[Bina] Raw:', result.content.slice(0, 300));
+  console.log('[Bina] Raw:', result.content.slice(0, 500));
 
+  const rawAnalysis = result.content;
   const parsed = extractJson(result.content);
   if (!parsed) {
     console.warn('[Bina] No valid JSON in response');
@@ -152,20 +162,26 @@ ${details ? `\nContext: ${details}` : ''}`;
     estimatedPrice = parsed.estimatedFairPrice;
   }
 
+  const exactModel = typeof parsed.exactModel === 'string' ? parsed.exactModel.trim().slice(0, 100) : '';
+  const category = typeof parsed.category === 'string' && parsed.category.trim()
+    ? parsed.category.trim().slice(0, 50) : undefined;
+  const brand = typeof parsed.brand === 'string' && parsed.brand.trim() && parsed.brand !== 'Unknown'
+    ? parsed.brand.trim().slice(0, 50) : undefined;
+
   return {
     ok: true,
     data: {
       success: true,
-      category: typeof parsed.category === 'string' && parsed.category.trim()
-        ? parsed.category.trim().slice(0, 50) : undefined,
-      brand: typeof parsed.brand === 'string' && parsed.brand.trim() && parsed.brand !== 'Unknown'
-        ? parsed.brand.trim().slice(0, 50) : undefined,
+      category,
+      brand,
+      exactModel: exactModel || undefined,
       features: Array.isArray(parsed.features)
         ? parsed.features.filter((f): f is string => typeof f === 'string').slice(0, 8)
         : [],
       estimatedPrice,
       modelConfidence,
       isLuxury: parsed.isLuxury === true,
+      rawAnalysis: rawAnalysis.slice(0, 2000),
     },
   };
 }

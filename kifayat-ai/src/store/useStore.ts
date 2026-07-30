@@ -1,11 +1,10 @@
 'use client';
 
 import { create } from 'zustand';
-import type { ScanResult, ScanState, CurrencyCode } from '@/types';
+import type { ScanResult, ScanState } from '@/types';
 
 interface HistoryState {
   theme: 'light' | 'dark';
-  currency: CurrencyCode;
   scanState: ScanState;
   currentResult: ScanResult | null;
   history: ScanResult[];
@@ -13,7 +12,6 @@ interface HistoryState {
   isHistoryOpen: boolean;
 
   setTheme: (theme: 'light' | 'dark') => void;
-  setCurrency: (currency: CurrencyCode) => void;
   setScanState: (state: ScanState) => void;
   setCurrentResult: (result: ScanResult | null) => void;
   addToHistory: (result: ScanResult) => void;
@@ -42,7 +40,6 @@ function load<T>(key: string, fallback: T): T {
 
 export const useStore = create<HistoryState>((set, get) => ({
   theme: 'dark',
-  currency: 'USD',
   scanState: 'idle',
   currentResult: null,
   history: [],
@@ -52,9 +49,8 @@ export const useStore = create<HistoryState>((set, get) => ({
   rehydrate: () => {
     const savedIds = load<string[]>('ka-saved', []);
     const history = load<ScanResult[]>('ka-history', []);
-    const currency = load<CurrencyCode>('ka-currency', 'USD');
     const theme = load<'light' | 'dark'>('ka-theme', 'dark');
-    set({ savedIds, history, currency, theme });
+    set({ savedIds, history, theme });
   },
 
   setTheme: (theme) => {
@@ -63,11 +59,6 @@ export const useStore = create<HistoryState>((set, get) => ({
     if (typeof document !== 'undefined') {
       document.documentElement.classList.toggle('dark', theme === 'dark');
     }
-  },
-
-  setCurrency: (currency) => {
-    set({ currency });
-    persist('ka-currency', currency);
   },
 
   setScanState: (scanState) => set({ scanState }),

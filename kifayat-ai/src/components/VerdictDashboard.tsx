@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Tag, Sparkles, ShoppingCart, TrendingDown, Shield, Database } from 'lucide-react';
-import { CURRENCIES, type ScanResult } from '@/types';
+import { Tag, Sparkles, ShoppingCart, TrendingDown, Shield, Database, MapPin } from 'lucide-react';
+import { type ScanResult } from '@/types';
 import { cn } from '@/lib/cn';
+import { formatPKR } from '@/lib/currency';
 import KifayatScoreGauge from './KifayatScoreGauge';
 
 interface Props { result: ScanResult; }
@@ -22,15 +23,18 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 export default function VerdictDashboard({ result }: Props) {
-  const { kifayatScore, verdict, askingPrice, averageWebPrice, savingsAmount, savingsPercentage, category, brand, features, currency, confidence, dataSource, webPriceCount } = result;
-  const sym = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '$';
+  const { kifayatScore, verdict, askingPrice, averageWebPrice, savingsAmount, savingsPercentage, category, brand, exactModel, features, confidence, dataSource, webPriceCount } = result;
   const conf = CONFIDENCE_CONFIG[confidence];
 
   return (
     <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full px-4 pb-6">
       <div className="mx-auto max-w-4xl">
         <div className="glass-card rounded-2xl p-6 md:p-8">
-          <div className="flex flex-wrap items-center gap-2 mb-6">
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px] font-medium text-surface-400">
+              <MapPin className="size-3" /> Pakistan
+            </span>
             <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium border', conf.bg, conf.border, conf.color)}>
               <Shield className="size-3" /> {conf.label}
             </span>
@@ -39,10 +43,17 @@ export default function VerdictDashboard({ result }: Props) {
             </span>
             {webPriceCount > 0 && (
               <span className="text-[11px] text-surface-500 border border-white/5 rounded-full px-2.5 py-1">
-                {webPriceCount} web prices
+                {webPriceCount} stores
               </span>
             )}
           </div>
+
+          {/* Exact Model */}
+          {exactModel && (
+            <div className="mb-4 px-3 py-2 rounded-lg bg-primary-500/5 border border-primary-500/10 text-xs text-primary-300 font-mono">
+              Detected: {exactModel}
+            </div>
+          )}
 
           <div className="grid gap-8 md:grid-cols-[1fr_1.5fr]">
             <div className="flex items-start justify-center">
@@ -50,18 +61,19 @@ export default function VerdictDashboard({ result }: Props) {
             </div>
 
             <div className="space-y-5">
+              {/* Price Delta */}
               <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-500 mb-3 flex items-center gap-1.5">
-                  <TrendingDown className="size-3.5" /> Price Comparison
+                  <TrendingDown className="size-3.5" /> قیمت کا موازنہ
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[11px] font-medium text-surface-500 uppercase tracking-wider">Your Price</span>
-                    <p className="text-xl font-bold text-white mt-0.5 font-mono">{sym}{askingPrice.toFixed(2)}</p>
+                    <span className="text-[11px] font-medium text-surface-500 uppercase tracking-wider">آپ کی قیمت</span>
+                    <p className="text-xl font-bold text-white mt-0.5 font-mono">{formatPKR(askingPrice)}</p>
                   </div>
                   <div>
-                    <span className="text-[11px] font-medium text-surface-500 uppercase tracking-wider">Web Average</span>
-                    <p className="text-xl font-bold text-white mt-0.5 font-mono">{sym}{averageWebPrice.toFixed(2)}</p>
+                    <span className="text-[11px] font-medium text-surface-500 uppercase tracking-wider">ویب اوسط</span>
+                    <p className="text-xl font-bold text-white mt-0.5 font-mono">{formatPKR(averageWebPrice)}</p>
                   </div>
                 </div>
                 {savingsAmount > 0 ? (
@@ -69,8 +81,8 @@ export default function VerdictDashboard({ result }: Props) {
                     className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
                     <span className="text-lg">🟢</span>
                     <div>
-                      <p className="text-sm font-semibold text-emerald-400">Save {sym}{savingsAmount.toFixed(2)}</p>
-                      <p className="text-[11px] text-emerald-500">{savingsPercentage}% cheaper than web average</p>
+                      <p className="text-sm font-semibold text-emerald-400">بچت {formatPKR(savingsAmount)}</p>
+                      <p className="text-[11px] text-emerald-500">ویب اوسط سے {savingsPercentage}% سستا</p>
                     </div>
                   </motion.div>
                 ) : verdict === 'overpriced' ? (
@@ -78,16 +90,17 @@ export default function VerdictDashboard({ result }: Props) {
                     className="mt-3 flex items-center gap-2 rounded-lg bg-primary-500/10 border border-primary-500/20 px-3 py-2">
                     <span className="text-lg">🔴</span>
                     <div>
-                      <p className="text-sm font-semibold text-primary-400">Overpriced by {sym}{(-savingsAmount).toFixed(2)}</p>
-                      <p className="text-[11px] text-primary-500">{Math.abs(savingsPercentage)}% above web average</p>
+                      <p className="text-sm font-semibold text-primary-400">مہنگا ہے — {formatPKR(-savingsAmount)} زیادہ</p>
+                      <p className="text-[11px] text-primary-500">ویب اوسط سے {Math.abs(savingsPercentage)}% مہنگا</p>
                     </div>
                   </motion.div>
                 ) : null}
               </div>
 
+              {/* AI Vision Analysis */}
               <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-500 mb-3 flex items-center gap-1.5">
-                  <Sparkles className="size-3.5" /> AI Vision Analysis
+                  <Sparkles className="size-3.5" /> AI بصری تجزیہ
                 </h4>
                 <div className="flex flex-wrap gap-2 mb-3">
                   <span className="inline-flex items-center gap-1 rounded-full bg-primary-500/10 px-3 py-1 text-xs font-medium text-primary-400 border border-primary-500/20">
