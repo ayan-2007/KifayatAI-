@@ -102,7 +102,7 @@ async function tryKey(
 
 Return ONLY valid JSON with no markdown, no thinking tags, no extra text:
 {
-  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag)",
+  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag, Arduino, ESP32, Raspberry Pi, Microcontroller, Sensor Module, Motor Driver, Power Module, Soldering Iron, IC, Transistor, Display Module, Battery Cell)",
   "brand": "brand name exactly as known in Pakistan or Unknown",
   "exactModel": "exact model number / variant / color / size if visible, otherwise empty string",
   "features": ["exact visible feature 1", "exact visible feature 2", "exact visible feature 3", "exact visible feature 4"],

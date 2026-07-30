@@ -3,7 +3,7 @@ export interface PakistaniMerchant {
   domains: string[];
   priority: number;
   cod: boolean;
-  category: 'marketplace' | 'electronics' | 'fashion' | 'general';
+  category: 'marketplace' | 'electronics' | 'fashion' | 'general' | 'components';
 }
 
 export const PAKISTANI_MERCHANTS: PakistaniMerchant[] = [
@@ -41,6 +41,17 @@ export const PAKISTANI_MERCHANTS: PakistaniMerchant[] = [
   { name: 'QMobile', domains: ['qmobile.com.pk'], priority: 32, cod: true, category: 'electronics' },
   { name: 'Zebronics', domains: ['zebronics.com.pk'], priority: 33, cod: true, category: 'electronics' },
   { name: 'HF Car Accessories', domains: ['hfcaraccessories.com'], priority: 34, cod: true, category: 'general' },
+  { name: 'Digilog', domains: ['digilog.pk'], priority: 35, cod: true, category: 'components' },
+  { name: 'Hall Road Lahore', domains: ['hallroadlahore.pk'], priority: 36, cod: true, category: 'components' },
+  { name: 'ElectroStore', domains: ['electrostore.pk'], priority: 37, cod: true, category: 'components' },
+  { name: 'Pak Robotics', domains: ['pakrobotics.com'], priority: 38, cod: true, category: 'components' },
+  { name: 'Techsharks', domains: ['techsharks.pk'], priority: 39, cod: true, category: 'components' },
+  { name: 'KitHub', domains: ['kithub.pk'], priority: 40, cod: true, category: 'components' },
+  { name: 'Faran Electronics', domains: ['faranelectronics.com'], priority: 41, cod: true, category: 'components' },
+  { name: 'Wavetronics', domains: ['wavetronics.pk'], priority: 42, cod: true, category: 'components' },
+  { name: 'Scientific Cart', domains: ['scientificcart.com'], priority: 43, cod: true, category: 'components' },
+  { name: 'Innovat Electronics', domains: ['innovatlectronics.pk'], priority: 44, cod: true, category: 'components' },
+  { name: 'Electronics Garage', domains: ['electronicsgarage.pk'], priority: 45, cod: true, category: 'components' },
 ];
 
 export function identifyMerchant(source: string): PakistaniMerchant | null {
