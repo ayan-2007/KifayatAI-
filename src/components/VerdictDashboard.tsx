@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Tag, Sparkles, ShoppingCart, TrendingDown, Shield, Database, MapPin, ArrowRight, Globe } from 'lucide-react';
+import { Tag, Sparkles, ShoppingCart, TrendingDown, Shield, Database, MapPin } from 'lucide-react';
 import { type ScanResult } from '@/types';
 import { cn } from '@/lib/cn';
 import { formatPKR } from '@/lib/currency';
@@ -23,13 +23,8 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 export default function VerdictDashboard({ result }: Props) {
-  const { kifayatScore, verdict, askingPrice, averageWebPrice, savingsAmount, savingsPercentage, category, brand, exactModel, features, confidence, dataSource, webPriceCount, comparisons } = result;
+  const { kifayatScore, verdict, askingPrice, averageWebPrice, savingsAmount, savingsPercentage, category, brand, exactModel, features, confidence, dataSource, webPriceCount } = result;
   const conf = CONFIDENCE_CONFIG[confidence];
-
-  const cheaperOptions = comparisons
-    .filter(c => c.isLowerPrice)
-    .sort((a, b) => a.price - b.price)
-    .slice(0, 4);
 
   return (
     <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full px-4 pb-6">
@@ -121,41 +116,7 @@ export default function VerdictDashboard({ result }: Props) {
           </div>
         </div>
 
-        {cheaperOptions.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-            <h4 className="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
-              <TrendingDown className="size-4" /> Cheaper Options Available
-            </h4>
-            <div className="space-y-2">
-              {cheaperOptions.map((item) => (
-                <a key={item.id} href={item.productUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="size-10 shrink-0 rounded-lg overflow-hidden bg-white/5">
-                      <img src={item.imageUrl} alt="" className="size-full object-cover" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-deep-200 truncate">{item.merchant}</p>
-                      <p className="text-[11px] text-deep-500 truncate">{item.title}</p>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-deep-500">
-                        <Globe className="size-2.5" /> {item.merchantDomain}
-                        <span className="mx-0.5 text-deep-700">·</span>
-                        <Database className="size-2.5" /> {item.dataSource === 'estimated' ? 'Estimated' : item.dataSource === 'web' ? 'Web Price' : item.dataSource === 'ai_vision' ? 'AI Estimate' : 'AI + Web'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-bold font-mono text-emerald-400">{formatPKR(item.price)}</span>
-                    <span className="text-[11px] text-deep-600 group-hover:text-deep-400 transition-colors">
-                      <ArrowRight className="size-4" />
-                    </span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </motion.div>
-        )}
+
       </div>
     </motion.section>
   );
