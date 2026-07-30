@@ -28,7 +28,7 @@ export default function HistoryDrawer() {
             className="fixed top-0 right-0 z-50 h-dvh w-full max-w-sm bg-surface-950 border-l border-white/5 shadow-2xl">
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between px-4 h-14 border-b border-white/5">
-                <h2 className="text-sm font-semibold text-white font-heading">محفوظ سودے</h2>
+                <h2 className="text-sm font-semibold text-white font-heading">Saved Deals</h2>
                 <button onClick={toggleHistory} className="flex size-8 items-center justify-center rounded-lg text-surface-400 hover:text-white hover:bg-white/5 transition-colors">
                   <X className="size-4" />
                 </button>
@@ -37,20 +37,20 @@ export default function HistoryDrawer() {
                 {history.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-6">
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-white/5 mb-3"><Clock className="size-6 text-surface-500" /></div>
-                    <p className="text-sm font-medium text-surface-400">ابھی تک کوئی اسکین نہیں</p>
-                    <p className="text-xs text-surface-600 mt-1">قیمت کی معلومات کی تاریخ یہاں ظاہر ہوگی۔</p>
+                    <p className="text-sm font-medium text-surface-400">No scans yet</p>
+                    <p className="text-xs text-surface-600 mt-1">Your price intelligence history will appear here.</p>
                   </div>
                 ) : (
                   <div className="p-3 space-y-3">
                     {savedResults.length > 0 && (
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-500 mb-2 px-1">محفوظ کردہ</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-500 mb-2 px-1">Saved</p>
                         {savedResults.map((r) => <HistoryItem key={r.id} result={r} isSaved onSelect={handleSelect} onToggleSave={toggleSaved} />)}
                       </div>
                     )}
                     {recentResults.length > 0 && (
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-500 mb-2 px-1">حالیہ</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-surface-500 mb-2 px-1">Recent</p>
                         {recentResults.map((r) => <HistoryItem key={r.id} result={r} isSaved={false} onSelect={handleSelect} onToggleSave={toggleSaved} />)}
                       </div>
                     )}
@@ -82,7 +82,7 @@ function HistoryItem({ result, isSaved, onSelect, onToggleSave }: { result: Scan
               : result.kifayatScore >= 50 ? 'bg-amber-500/10 text-amber-400' : 'bg-primary-500/10 text-primary-400'
           )}>{result.kifayatScore}</span>
         </div>
-        <p className="text-[10px] text-surface-600 mt-0.5">{new Date(result.timestamp).toLocaleDateString('en-PK')}</p>
+        <p className="text-[10px] text-surface-600 mt-0.5">{new Date(result.timestamp).toLocaleDateString()}</p>
       </div>
       <button onClick={(e) => { e.stopPropagation(); onToggleSave(result.id); }}
         className="flex size-8 shrink-0 items-center justify-center rounded-lg text-surface-500 hover:text-primary-400 hover:bg-white/5 transition-colors">

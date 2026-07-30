@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { motion } from 'framer-motion';
-import { ExternalLink, ShieldCheck, Banknote, Truck } from 'lucide-react';
+import { ExternalLink, ShieldCheck, Truck } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { formatPKR } from '@/lib/currency';
 import { type ComparisonItem } from '@/types';
@@ -16,8 +16,8 @@ export default function ComparisonGrid({ comparisons }: Props) {
     <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="w-full px-4 pb-8">
       <div className="mx-auto max-w-4xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-widest">پاکستانی اسٹورز سے قیمتیں</h3>
-          <span className="text-xs text-surface-500">{comparisons.length} مل گئے</span>
+          <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-widest">Prices Across Pakistani Stores</h3>
+          <span className="text-xs text-surface-500">{comparisons.length} matches found</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((item, i) => (
@@ -49,7 +49,7 @@ function ComparisonCard({ item, index, isCheapest }: { item: ComparisonItem; ind
           </div>
           {isCheapest && (
             <span className="shrink-0 flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
-              <ShieldCheck className="size-3" /> بہترین
+              <ShieldCheck className="size-3" /> Best
             </span>
           )}
         </div>
@@ -59,10 +59,10 @@ function ComparisonCard({ item, index, isCheapest }: { item: ComparisonItem; ind
           </span>
           <span className={cn('text-[11px] font-medium',
             item.similarityScore >= 80 ? 'text-emerald-400' : item.similarityScore >= 60 ? 'text-amber-400' : 'text-surface-500'
-          )}>{item.similarityScore}% ملتا</span>
+          )}>{item.similarityScore}% match</span>
         </div>
         <div className="flex items-center gap-2 pt-1 border-t border-white/5">
-          <span className="text-[11px] text-surface-500 flex items-center gap-1"><ExternalLink className="size-3" /> دیکھیں</span>
+          <span className="text-[11px] text-surface-500 flex items-center gap-1"><ExternalLink className="size-3" /> View Deal</span>
           {item.supportsCOD && (
             <span className="text-[11px] text-surface-500 flex items-center gap-1 ml-auto">
               <Truck className="size-3" /> COD

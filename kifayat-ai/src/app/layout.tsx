@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, DM_Sans, JetBrains_Mono, Noto_Nastaliq_Urdu } from 'next/font/google';
+import { Space_Grotesk, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -20,19 +20,13 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500', '600', '700'],
 });
 
-const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
-  variable: '--font-urdu',
-  subsets: ['arabic'],
-  weight: ['400', '600', '700'],
-});
-
 export const metadata: Metadata = {
-  title: 'Kifayat AI — Pakistan Smart Price Intelligence',
-  description: 'پھر کبھی زیادہ نہ دیں۔ AI پاکستانی مارکیٹ سے قیمتیں چیک کرتی ہے — تصویر اپ لوڈ کریں اور فوری قیمت کی انٹیلیجنس حاصل کریں۔',
+  title: 'Kifayat AI — Smart Visual Shopping & Price Intelligence — Pakistan',
+  description: 'Never overpay again. AI checks prices across all Pakistani stores — upload a product photo and get instant price intelligence, web comparisons, and savings insights.',
   openGraph: {
-    title: 'Kifayat AI — Pakistan Smart Price Intelligence',
+    title: 'Kifayat AI — Pakistan Price Intelligence',
     description: 'AI-powered visual price comparison for Pakistani marketplaces.',
-    siteName: 'Kifayat AI Pakistan',
+    siteName: 'Kifayat AI',
   },
 };
 
@@ -44,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${notoNastaliqUrdu.variable} dark`}
+      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} dark`}
       suppressHydrationWarning
     >
       <head>

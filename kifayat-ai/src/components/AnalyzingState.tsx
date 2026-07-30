@@ -6,8 +6,8 @@ import { ScanLine, Globe, BarChart3, Loader2, Eye, Search, Shield } from 'lucide
 import { cn } from '@/lib/cn';
 
 const STEPS = [
-  { icon: Eye, label: 'بینا (Bina) — Scanning visual features, fabric & brand signatures...' },
-  { icon: Search, label: 'تلاش کار (Talashkaar) — Querying global shopping indexes in selected currency...' },
+  { icon: Eye, label: 'بینا (Bina) — Analyzing visual features, fabric pattern & brand signatures...' },
+  { icon: Search, label: 'تلاش کار (Talashkaar) — Querying Pakistani shopping indexes & marketplace prices...' },
   { icon: Shield, label: 'منصف (Munsif) — Calculating Kifayat Score, savings & validating analysis...' },
 ];
 
@@ -30,8 +30,8 @@ export default function AnalyzingState() {
           </motion.div>
 
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-white font-heading">راہنما (Rehnuma) is Analyzing</h3>
-            <p className="text-sm text-surface-400 mt-1">Agent team scanning millions of data points...</p>
+            <h3 className="text-lg font-semibold text-white font-heading">راہنما (Rehnuma) is Analyzing Your Item</h3>
+            <p className="text-sm text-surface-400 mt-1">Scanning Pakistani stores for the best prices...</p>
           </div>
 
           <div className="w-full space-y-3 mt-2">

@@ -69,8 +69,8 @@ export default function Home() {
 
       <footer className="w-full border-t border-white/5 py-6 mt-auto relative z-10">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-xs text-surface-500 font-heading">Kifayat AI — پاکستان کی سمارٹ پرائس انٹیلیجنس</p>
-          <p className="text-[10px] text-surface-600 mt-1">کفایت — پھر کبھی زیادہ نہ دیں</p>
+          <p className="text-xs text-surface-500 font-heading">Kifayat AI — Smart Visual Shopping &amp; Price Intelligence — Pakistan</p>
+          <p className="text-[10px] text-surface-600 mt-1">کفایت — Never Overpay Again</p>
         </div>
       </footer>
 

@@ -71,12 +71,14 @@ export default function UploadSection() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-heading">
-            پھر کبھی زیادہ نہ دیں
+            Never Overpay{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
+              Again.
+            </span>
           </h1>
           <p className="mt-3 text-sm md:text-base text-surface-400 max-w-md mx-auto">
-            پروڈکٹ کی تصویر اپ لوڈ کریں۔ AI قیمت چیک کرتی ہے، پاکستانی مارکیٹ سے موازنہ کرتی ہے، اور بتاتی ہے کہ سودا ہے یا دھوکہ۔
+            Upload a product photo. AI inspects the price, checks across all Pakistani stores, and tells you if it&apos;s a steal or a scam.
           </p>
-          <p className="text-xs text-surface-500 mt-1">Upload a photo. AI checks prices across all Pakistani stores.</p>
         </motion.div>
 
         <motion.div
@@ -112,12 +114,12 @@ export default function UploadSection() {
                   <ImageUp className="size-7" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-surface-300">تصویر یہاں گھسیٹیں اور چھوڑیں</p>
-                  <p className="text-xs text-surface-500 mt-1">یا فائل منتخب کرنے کے لیے ٹیپ کریں</p>
+                  <p className="text-sm font-medium text-surface-300">Drag & drop an image here</p>
+                  <p className="text-xs text-surface-500 mt-1">or tap to browse files</p>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-600/20">
-                    <Upload className="size-4" /> تصویر اپ لوڈ کریں
+                    <Upload className="size-4" /> Upload Photo
                   </button>
                   <button onClick={() => {
                     const input = document.createElement('input');
@@ -125,7 +127,7 @@ export default function UploadSection() {
                     input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) handleImage(file); };
                     input.click();
                   }} className="flex items-center gap-2 h-10 px-5 rounded-xl border border-white/10 text-surface-300 text-sm font-medium hover:bg-white/5 transition-colors">
-                    <Camera className="size-4" /> تصویر لیں
+                    <Camera className="size-4" /> Take Photo
                   </button>
                 </div>
               </motion.div>
@@ -140,13 +142,13 @@ export default function UploadSection() {
             <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-surface-500">
               <span className="text-sm font-bold font-mono text-surface-400">₨</span>
             </div>
-            <input type="number" step="1" min="0" placeholder="قیمت درج کریں" value={askingPrice}
+            <input type="number" step="1" min="0" placeholder="0" value={askingPrice}
               onChange={(e) => setAskingPrice(e.target.value)}
               className="w-full h-12 pl-10 pr-16 rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all font-mono" />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-surface-500 font-mono">PKR</div>
           </div>
 
-          <input type="text" placeholder="برانڈ، ماڈل یا کوئی تفصیل (اختیاری)" value={details}
+          <input type="text" placeholder="Brand, store, or tag info (Optional)" value={details}
             onChange={(e) => setDetails(e.target.value)}
             className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all" />
 
@@ -159,7 +161,7 @@ export default function UploadSection() {
             )}>
             <span className="relative z-10 flex items-center justify-center gap-2">
               <Zap className="size-4" />
-              Kifayat Scan چلائیں
+              Run Kifayat Scan
             </span>
           </button>
         </motion.div>
