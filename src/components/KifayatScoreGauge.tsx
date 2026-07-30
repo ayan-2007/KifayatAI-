@@ -15,7 +15,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 function getScoreColor(score: number) {
   if (score >= 80) return 'stroke-emerald-500';
   if (score >= 50) return 'stroke-amber-400';
-  return 'stroke-primary-500';
+  return 'stroke-redblack-500';
 }
 
 function getScoreGlow(score: number) {
@@ -64,7 +64,7 @@ export default function KifayatScoreGauge({ score, verdict }: Props) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-4xl font-bold tabular-nums text-white font-mono">{animatedScore}</span>
-          <span className="text-[10px] font-medium text-surface-500 uppercase tracking-widest">Score</span>
+          <span className="text-[10px] font-medium text-deep-500 uppercase tracking-widest">Score</span>
         </div>
       </div>
 
@@ -74,11 +74,11 @@ export default function KifayatScoreGauge({ score, verdict }: Props) {
             'inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
             score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
               : score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                : 'bg-primary-500/10 text-primary-400 border border-primary-500/20'
+                : 'bg-redblack-600/10 text-redblack-400 border border-redblack-500/20'
           )}>
           {info.label}
         </motion.span>
-        <p className="text-sm text-surface-400 mt-1">{info.sub}</p>
+        <p className="text-sm text-deep-400 mt-1">{info.sub}</p>
       </div>
     </div>
   );

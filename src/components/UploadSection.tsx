@@ -70,13 +70,13 @@ export default function UploadSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-heading">
-            Never Overpay{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
-              Again.
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading tracking-tight text-white leading-tight">
+            NEVER OVERPAY{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-redblack-400 to-redblack-600">
+              AGAIN.
             </span>
           </h1>
-          <p className="mt-3 text-sm md:text-base text-surface-400 max-w-md mx-auto">
+          <p className="mt-3 text-sm md:text-base text-deep-300 max-w-md mx-auto">
             Upload a product photo. AI inspects the price, checks across all Pakistani stores, and tells you if it&apos;s a steal or a scam.
           </p>
         </motion.div>
@@ -86,12 +86,12 @@ export default function UploadSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className={cn(
-            'rounded-2xl border-2 border-dashed p-6 md:p-8 transition-all duration-300',
+            'rounded-2xl border-2 border-dashed p-6 md:p-8 transition-all duration-300 bg-black/40 backdrop-blur-xl',
             isDragging
-              ? 'border-primary-400 bg-primary-500/5'
+              ? 'border-redblack-400 bg-redblack-500/10'
               : imagePreview
                 ? 'border-emerald-500/30 bg-emerald-500/5'
-                : 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                : 'border-white/10 hover:border-redblack-400/40 bg-white/[0.02]'
           )}
           onDrop={onDrop}
           onDragOver={onDragOver}
@@ -102,23 +102,23 @@ export default function UploadSection() {
               <motion.div key="preview" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative">
                 <div className="relative mx-auto max-w-xs rounded-xl overflow-hidden ring-1 ring-white/10">
                   <img src={imagePreview} alt="Product preview" className="w-full h-48 md:h-56 object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                 </div>
-                <button onClick={clearImage} className="absolute -top-2 -right-2 flex size-7 items-center justify-full rounded-full bg-surface-800 border border-white/10 shadow-sm text-surface-400 hover:text-white transition-colors">
+                <button onClick={clearImage} className="absolute -top-2 -right-2 flex size-7 items-center justify-full rounded-full bg-deep-800 border border-white/10 shadow-sm text-deep-400 hover:text-white transition-colors">
                   <X className="size-3.5 mx-auto" />
                 </button>
               </motion.div>
             ) : (
               <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center gap-4">
-                <div className="flex size-16 items-center justify-center rounded-2xl bg-primary-500/10 text-primary-400">
+                <div className="flex size-16 items-center justify-center rounded-2xl bg-redblack-600/10 text-redblack-400">
                   <ImageUp className="size-7" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-surface-300">Drag & drop an image here</p>
-                  <p className="text-xs text-surface-500 mt-1">or tap to browse files</p>
+                  <p className="text-sm font-medium text-deep-200">Drag & drop an image here</p>
+                  <p className="text-xs text-deep-500 mt-1">or tap to browse files</p>
                 </div>
                 <div className="flex gap-3">
-                  <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 h-10 px-5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-colors shadow-lg shadow-primary-600/20">
+                  <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 h-10 px-5 rounded-xl bg-redblack-600 hover:bg-redblack-500 text-white text-sm font-semibold transition-all shadow-lg shadow-redblack-600/30 hover:shadow-redblack-500/40">
                     <Upload className="size-4" /> Upload Photo
                   </button>
                   <button onClick={() => {
@@ -126,7 +126,7 @@ export default function UploadSection() {
                     input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
                     input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) handleImage(file); };
                     input.click();
-                  }} className="flex items-center gap-2 h-10 px-5 rounded-xl border border-white/10 text-surface-300 text-sm font-medium hover:bg-white/5 transition-colors">
+                  }} className="flex items-center gap-2 h-10 px-5 rounded-xl border border-white/10 text-deep-300 text-sm font-medium hover:bg-white/5 transition-colors">
                     <Camera className="size-4" /> Take Photo
                   </button>
                 </div>
@@ -139,29 +139,29 @@ export default function UploadSection() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="mt-6 space-y-4">
           <div className="relative">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-surface-500">
-              <span className="text-sm font-bold font-mono text-surface-400">₨</span>
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-deep-500">
+              <span className="text-sm font-bold font-mono text-deep-400">₨</span>
             </div>
             <input type="number" step="1" min="0" placeholder="0" value={askingPrice}
               onChange={(e) => setAskingPrice(e.target.value)}
-              className="w-full h-12 pl-10 pr-16 rounded-xl border border-white/10 bg-white/5 text-lg font-semibold text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all font-mono" />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-surface-500 font-mono">PKR</div>
+              className="w-full h-12 pl-10 pr-16 rounded-xl border border-white/10 bg-black/40 text-lg font-semibold text-white placeholder:text-deep-600 focus:outline-none focus:ring-2 focus:ring-redblack-500/40 focus:border-redblack-500 transition-all font-mono" />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-deep-500 font-mono">PKR</div>
           </div>
 
           <input type="text" placeholder="Brand, store, or tag info (Optional)" value={details}
             onChange={(e) => setDetails(e.target.value)}
-            className="w-full h-11 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-surface-600 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all" />
+            className="w-full h-11 px-4 rounded-xl border border-white/10 bg-black/40 text-sm text-white placeholder:text-deep-600 focus:outline-none focus:ring-2 focus:ring-redblack-500/40 focus:border-redblack-500 transition-all" />
 
           <button onClick={handleScan}
             disabled={!imagePreview || !askingPrice || scanState === 'analyzing'}
             className={cn(
               'relative w-full h-13 rounded-xl text-white text-sm font-bold tracking-wide overflow-hidden transition-all duration-300',
               'disabled:opacity-40 disabled:cursor-not-allowed',
-              'shimmer-btn hover:shadow-lg hover:shadow-primary-500/25 active:scale-[0.98] font-heading'
+              'shimmer-btn hover:shadow-lg hover:shadow-redblack-500/30 active:scale-[0.98] font-heading tracking-widest'
             )}>
             <span className="relative z-10 flex items-center justify-center gap-2">
               <Zap className="size-4" />
-              Run Kifayat Scan
+              RUN KIFAYAT SCAN
             </span>
           </button>
         </motion.div>

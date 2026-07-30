@@ -86,7 +86,7 @@ export function ShaderAnimation() {
           }
         }
 
-        gl_FragColor = vec4(color[0]*1.2, color[1]*0.3, color[2]*0.25, 1.0);
+        gl_FragColor = vec4(color[0]*1.4, color[1]*0.15, color[2]*0.1, 1.0);
       }
     `;
 

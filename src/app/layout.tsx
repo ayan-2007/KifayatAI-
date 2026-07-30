@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, DM_Sans, JetBrains_Mono } from 'next/font/google';
+import { Anton, Outfit, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const spaceGrotesk = Space_Grotesk({
+const anton = Anton({
   variable: '--font-heading',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400'],
 });
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   variable: '--font-body',
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} dark`}
+      className={`${anton.variable} ${outfit.variable} ${jetbrainsMono.variable} dark`}
       suppressHydrationWarning
     >
       <head>
