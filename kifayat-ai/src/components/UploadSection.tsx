@@ -15,12 +15,34 @@ export default function UploadSection() {
   const [details, setDetails] = useState('');
   const [isDragging, setIsDragging] = useState(false);
 
+  const compressImage = useCallback((dataUrl: string, maxWidth = 800, quality = 0.75): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(dataUrl); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = dataUrl;
+    });
+  }, []);
+
   const handleImage = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
-    reader.onload = (e) => setImagePreview(e.target?.result as string);
+    reader.onload = async (e) => {
+      const raw = e.target?.result as string;
+      const compressed = await compressImage(raw);
+      setImagePreview(compressed);
+    };
     reader.readAsDataURL(file);
-  }, []);
+  }, [compressImage]);
 
   const onDrop = useCallback((e: DragEvent) => {
     e.preventDefault(); setIsDragging(false);

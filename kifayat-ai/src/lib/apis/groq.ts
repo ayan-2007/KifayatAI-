@@ -98,11 +98,11 @@ async function tryKey(
   imageBase64: string,
   details?: string
 ): Promise<{ ok: true; data: GroqAnalysis } | { ok: false; quotaExceeded: boolean }> {
-  const prompt = `You are analyzing a product image for the PAKISTANI market. Be extremely precise.
+  const prompt = `You are analyzing a product image for the PAKISTANI market. Be extremely precise. This can be ANY product — electronics, clothing, food, hardware, sanitary, tools, automotive, toys, books, furniture, etc.
 
 Return ONLY valid JSON with no markdown, no thinking tags, no extra text:
 {
-  "category": "product category suitable for Pakistani market (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag)",
+  "category": "product category (e.g., Mobile Phone, Kurti, Sneakers, Wrist Watch, Perfume, LED TV, Laptop, Home Appliance, Cricket Bat, Leather Bag, Microchip, IC, Circuit Board, Resistor, Sensor, Power Tool, Wrench, Faucet, Sanitary Fitting, Pipe, Drill, Book, Toy, Chair, Shirt, T-Shirt, etc.)",
   "brand": "brand name exactly as known in Pakistan or Unknown",
   "exactModel": "exact model number / variant / color / size if visible, otherwise empty string",
   "features": ["exact visible feature 1", "exact visible feature 2", "exact visible feature 3", "exact visible feature 4"],
@@ -119,6 +119,7 @@ RULES:
 - Consider Pakistani market prices including import duties and local taxes.
 - Features must be visually observable attributes only.
 - Set confidence to "low" if image is blurry, dark, or unclear.
+- If the image is too unclear to identify, provide the closest reasonable category but keep confidence "low".
 ${details ? `\nUser context: ${details}` : ''}`;
 
   const messages = [

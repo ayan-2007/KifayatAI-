@@ -3,6 +3,8 @@ import { parsePriceRaw } from '@/lib/currency';
 
 const SERPAPI_KEY = () => process.env.SERPAPI_API_KEY;
 
+const MAX_BASE64_LEN = 200000;
+
 export interface SerpapiPriceMatch {
   title: string;
   merchant: string;
@@ -63,7 +65,7 @@ export async function searchGoogleLensPakistan(
     const params = new URLSearchParams({
       engine: 'google_lens',
       api_key: key,
-      image_base64: base64.slice(0, 50000),
+      image_base64: base64.slice(0, MAX_BASE64_LEN),
       hl: 'en',
       country: 'pk',
     });
