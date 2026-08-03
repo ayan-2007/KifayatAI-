@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @next/next/no-img-element */
 
 import { motion } from 'framer-motion';
 import { Tag, Sparkles, ShoppingCart, TrendingDown, Shield, Database, MapPin, ArrowRight, Globe } from 'lucide-react';
@@ -29,7 +30,15 @@ export default function VerdictDashboard({ result }: Props) {
   const cheaperOptions = comparisons
     .filter(c => c.isLowerPrice)
     .sort((a, b) => a.price - b.price)
-    .slice(0, 4);
+    .slice(0, 5);
+
+  const bestValueOptions = comparisons
+    .sort((a, b) => a.price - b.price)
+    .slice(0, 5);
+
+  const displayOptions = cheaperOptions.length > 0 ? cheaperOptions : bestValueOptions;
+
+  const uniqueMerchants = [...new Set(comparisons.map(c => c.merchantDomain).filter(Boolean))];
 
   return (
     <motion.section initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full px-4 pb-6">
@@ -125,15 +134,41 @@ export default function VerdictDashboard({ result }: Props) {
           </div>
         </div>
 
+        {/* Price data from Pakistani stores */}
+        {uniqueMerchants.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-surface-500 mb-2 flex items-center gap-1.5">
+              <Globe className="size-3.5" /> Price Data Sourced From
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              {uniqueMerchants.map((domain) => (
+                <span key={domain} className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-medium text-surface-400 border border-white/10">
+                  <Globe className="size-2.5" /> {domain}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Cheaper Options */}
-        {cheaperOptions.length > 0 && (
+        {displayOptions.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-            <h4 className="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
-              <TrendingDown className="size-4" /> Cheaper Options Available
+            className={cn(
+              'mt-4 rounded-2xl border p-5',
+              cheaperOptions.length > 0
+                ? 'border-emerald-500/20 bg-emerald-500/5'
+                : 'border-amber-500/20 bg-amber-500/5'
+            )}>
+            <h4 className={cn(
+              'text-sm font-bold mb-3 flex items-center gap-2',
+              cheaperOptions.length > 0 ? 'text-emerald-400' : 'text-amber-400'
+            )}>
+              <TrendingDown className="size-4" />
+              {cheaperOptions.length > 0 ? 'Cheaper Options Available' : 'Best Available Prices'}
             </h4>
             <div className="space-y-2">
-              {cheaperOptions.map((item) => (
+              {displayOptions.map((item) => (
                 <a key={item.id} href={item.productUrl} target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group">
                   <div className="flex items-center gap-3 min-w-0">
@@ -142,16 +177,27 @@ export default function VerdictDashboard({ result }: Props) {
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-surface-200 truncate">{item.merchant}</p>
-                      <p className="text-[11px] text-surface-500 truncate">{item.title}</p>
+                      <p className="text-[11px] text-surface-500 truncate max-w-[200px]">{item.title}</p>
                       <span className="inline-flex items-center gap-1 text-[10px] text-surface-500">
                         <Globe className="size-2.5" /> {item.merchantDomain}
-                        <span className="mx-0.5 text-surface-700">·</span>
-                        <Database className="size-2.5" /> {item.dataSource === 'estimated' ? 'Estimated' : item.dataSource === 'web' ? 'Web Price' : item.dataSource === 'ai_vision' ? 'AI Estimate' : 'AI + Web'}
+                        {item.supportsCOD && (
+                          <><span className="mx-0.5 text-surface-700">·</span>COD</>
+                        )}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-sm font-bold font-mono text-emerald-400">{formatPKR(item.price)}</span>
+                    <div className="text-right">
+                      <span className={cn(
+                        'text-sm font-bold font-mono',
+                        item.isLowerPrice ? 'text-emerald-400' : 'text-surface-300'
+                      )}>{formatPKR(item.price)}</span>
+                      {item.isLowerPrice && (
+                        <p className="text-[10px] text-emerald-500">
+                          Save {formatPKR(askingPrice - item.price)}
+                        </p>
+                      )}
+                    </div>
                     <span className="text-[11px] text-surface-600 group-hover:text-surface-400 transition-colors">
                       <ArrowRight className="size-4" />
                     </span>
