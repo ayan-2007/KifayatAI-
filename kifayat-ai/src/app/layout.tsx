@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { BackgroundShader } from '@/components/ui/background-shader';
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-heading',
@@ -59,7 +60,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-dvh flex flex-col antialiased">
+      <body className="min-h-dvh flex flex-col antialiased relative">
+        <BackgroundShader />
         {children}
       </body>
     </html>

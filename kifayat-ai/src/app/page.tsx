@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import Header from '@/components/Header';
 import UploadSection from '@/components/UploadSection';
@@ -9,7 +9,6 @@ import AnalyzingState from '@/components/AnalyzingState';
 import VerdictDashboard from '@/components/VerdictDashboard';
 import ComparisonGrid from '@/components/ComparisonGrid';
 import HistoryDrawer from '@/components/HistoryDrawer';
-import { ShaderAnimation } from '@/components/ui/shader-lines';
 import { useStore } from '@/store/useStore';
 
 export default function Home() {
@@ -20,19 +19,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="flex-1 flex flex-col items-center relative">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-          <div className="absolute inset-0 opacity-40">
-            <ShaderAnimation />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-surface-950/40 via-transparent to-surface-950" />
-        </div>
-
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-[128px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary-700/10 rounded-full blur-[128px]" />
-        </motion.div>
-
+      <main className="flex-1 flex flex-col items-center relative z-0">
         {scanState === 'idle' && <UploadSection />}
 
         <AnimatePresence mode="wait">
